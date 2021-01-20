@@ -1,4 +1,4 @@
-# Amazon Automation
+# Amazon Autobuy with python and selenium
 
 Auto buy desired item from amazon via selenium and python.
 
