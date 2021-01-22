@@ -18,10 +18,11 @@ LOGIN_PASSWORD = os.getenv('LOGIN_PASSWORD')
 
 ITEM_URL = os.getenv('ITEM_URL')
 CAPTCHA_URL = os.getenv('CAPTCHA_URL')
-CHECKOUT_URL = "https://www.amazon.com.tr/gp/cart/view.html?ref_=nav_cart"
+CHECKOUT_URL = "https://www.amazon.tr/gp/cart/view.html?ref_=nav_cart"
 ACCEPT_SHOP = "Amazon.com.tr"
-LIMIT_VALUE = 12000
+LIMIT_VALUE = 1000
 isLogin = False
+
 
 def login(chromeDriver):
     chromeDriver.find_element_by_id("nav-link-accountList").click()
@@ -31,7 +32,7 @@ def login(chromeDriver):
     chromeDriver.find_element_by_id('signInSubmit').click()
     isLogin = True
     l.info("Successfully logged in")
-    
+
 
 def validate_captcha(chromeDriver):
     time.sleep(1)
@@ -44,12 +45,17 @@ def validate_captcha(chromeDriver):
     time.sleep(1)
 
 
-
 def purchase_item(chromeDriver):
     l.info("Starting purchase process...")
-    
+
     if not isLogin:
         login(chromeDriver)
+
+    while not in_stock_check(chromeDriver) or not verify_price_within_limit(chromeDriver):
+        l.info("Could not purchase desired item..stock waiting..")
+        time.sleep(randint(7, 12))
+        chromeDriver.refresh()
+
     #validate_captcha(chromeDriver)
 
     if not checkout(chromeDriver):
@@ -104,8 +110,8 @@ def verify_price_within_limit(chromeDriver):
     l.info('limit value is: {}'.format(float(LIMIT_VALUE)))
     price = price.split(',', 2)
     price = price[0]
-    # print(price)
-    if float(price.replace('₺', '')) > LIMIT_VALUE:
+    #print(price)
+    if float(price.replace('€', '')) > LIMIT_VALUE:
         l.warn('PRICE IS TOO LARGE.')
         return False
 
