@@ -18,10 +18,10 @@ LOGIN_PASSWORD = os.getenv('LOGIN_PASSWORD')
 
 ITEM_URL = os.getenv('ITEM_URL')
 CAPTCHA_URL = os.getenv('CAPTCHA_URL')
-CHECKOUT_URL = "https://www.amazon.com/gp/cart/view.html?ref_=nav_cart"
-ACCEPT_SHOP = "amazon"
-LIMIT_VALUE = 8500.
-
+CHECKOUT_URL = "https://www.amazon.com.tr/gp/cart/view.html?ref_=nav_cart"
+ACCEPT_SHOP = "Amazon.com.tr"
+LIMIT_VALUE = 12000
+isLogin = False
 
 def login(chromeDriver):
     chromeDriver.find_element_by_id("nav-link-accountList").click()
@@ -29,8 +29,9 @@ def login(chromeDriver):
     chromeDriver.find_element_by_id('continue').click()
     chromeDriver.find_element_by_id('ap_password').send_keys(LOGIN_PASSWORD)
     chromeDriver.find_element_by_id('signInSubmit').click()
+    isLogin = True
     l.info("Successfully logged in")
-
+    
 
 def validate_captcha(chromeDriver):
     time.sleep(1)
@@ -43,17 +44,13 @@ def validate_captcha(chromeDriver):
     time.sleep(1)
 
 
+
 def purchase_item(chromeDriver):
     l.info("Starting purchase process...")
-    while not in_stock_check(chromeDriver) or not verify_price_within_limit(chromeDriver) or not seller_check(
-            chromeDriver):
-        l.info("Could not purchase desired item..stock waiting..")
-        time.sleep(randint(15, 90))
-        chromeDriver.refresh()
-
-    login(chromeDriver)
-
-    validate_captcha(chromeDriver)
+    
+    if not isLogin:
+        login(chromeDriver)
+    #validate_captcha(chromeDriver)
 
     if not checkout(chromeDriver):
         return False
@@ -86,7 +83,8 @@ def in_stock_check(chromeDriver):
 def seller_check(chromeDriver):
     l.info("Checking shipper...")
     element = chromeDriver.find_element_by_id("tabular-buybox-truncate-0").text
-    shop = element.lower().find(ACCEPT_SHOP)
+  
+    shop = element.lower().find('amazon.com.tr')
     if shop == -1:
         l.warn("Amazon is not the seller/shipper")
         return False
@@ -104,8 +102,10 @@ def verify_price_within_limit(chromeDriver):
 
     l.info(f'price of item is:  {price}')
     l.info('limit value is: {}'.format(float(LIMIT_VALUE)))
-
-    if float(price.replace('$', '')) > LIMIT_VALUE:
+    price = price.split(',', 2)
+    price = price[0]
+    # print(price)
+    if float(price.replace('₺', '')) > LIMIT_VALUE:
         l.warn('PRICE IS TOO LARGE.')
         return False
 

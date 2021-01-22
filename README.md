@@ -11,6 +11,8 @@ $ pip install -r requirements.txt
 
 ```
 
+Chrome driver has to be installed on project root.
+
 ### Copy and edit `.env` file
 
 ```
@@ -22,4 +24,3 @@ $ cp .env.sample .env
 ```
 $ python main.py
 ```
-
