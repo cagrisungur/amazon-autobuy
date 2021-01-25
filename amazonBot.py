@@ -111,7 +111,7 @@ def verify_price_within_limit(chromeDriver):
     price = price.split(',', 2)
     price = price[0]
     #print(price)
-    if float(price.replace('€', '')) > LIMIT_VALUE:
+    if float(price.replace('₺', '')) > LIMIT_VALUE:
         l.warn('PRICE IS TOO LARGE.')
         return False
 
